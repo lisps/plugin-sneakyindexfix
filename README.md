@@ -1,0 +1,4 @@
+plugin-sneakyindexfix
+=====================
+
+Dokuwiki Plugin
