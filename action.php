@@ -9,8 +9,6 @@
 */
 
 if (!defined('DOKU_INC')) die();
-if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-require_once (DOKU_PLUGIN . 'action.php');
 
 class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
     
@@ -20,7 +18,8 @@ class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
     function register(Doku_Event_Handler $controller) {
         $controller->register_hook('AUTH_ACL_CHECK', 'AFTER', $this, '_acl_check');
     }
-    
+
+
     /**
      * 
      * only if sneaky_index is enabled
@@ -43,47 +42,42 @@ class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
         /* @var DokuWiki_Auth_Plugin $auth */
         global $auth;
         /*copy end*/
-        
+
+
         if(noNS($id) !== '*') return; //only namespacecheck
         if(!$conf['sneaky_index']) return; //we only need this when sneaky_index is enabled
-        
+
         /*copy auth_aclcheck_cb start*/
         if(!$auth) return AUTH_NONE;
-    
+
         //make sure groups is an array
         if(!is_array($groups)) $groups = array();
-        
+
         if(!$auth->isCaseSensitive()) {
             $user   = utf8_strtolower($user);
             $groups = array_map('utf8_strtolower', $groups);
         }
-        $user   = $auth->cleanUser($user);
+        $user   = auth_nameencode($auth->cleanUser($user));
         $groups = array_map(array($auth, 'cleanGroup'), (array) $groups);
-        $user   = auth_nameencode($user);
-    
+
+
         //prepend groups with @ and nameencode
-        $cnt = count($groups);
-        for($i = 0; $i < $cnt; $i++) {
-            $groups[$i] = '@'.auth_nameencode($groups[$i]);
+        foreach($groups as &$group) {
+            $group = '@'.auth_nameencode($group);
         }
     
         $ns   = getNS($id);
         $perm = -1;
     
-        if($user || count($groups)) {
-            //add ALL group
-            $groups[] = '@ALL';
-            //add User
-            if($user) $groups[] = $user;
-        } else {
-            $groups[] = '@ALL';
-        }
+        //add ALL group
+        $groups[] = '@ALL';
+
+        //add User
+        if($user) $groups[] = $user;
         /*copy end*/
-        
-        
+
         //check for deeper acl definition
         $matches = preg_grep('/^'.preg_quote($ns, '/').':[\w:\*]+[ \t]+([^ \t]+)[ \t]+/', $AUTH_ACL);
-
         if(count($matches)) {
             foreach($matches as $match) {
                 $match = preg_replace('/#.*$/', '', $match); //ignore comments
@@ -95,7 +89,8 @@ class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
                     continue;
                 }
                 if($acl[2] > AUTH_NONE) {
-                    $event->result = AUTH_READ; return; //set read access for this namespace
+                    $event->result =  true;
+                    return true; //set read access for this namespace
                 }
             }
 

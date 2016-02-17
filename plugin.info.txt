@@ -1,7 +1,7 @@
 base    sneakyindexfix
 author  lisps
 email   
-date    2014-03-04
+date    2016-02-17
 name    sneakyindexfix Plugin
 desc    fix arround sneaky_index
 url     http://www.dokuwiki.org/plugin:sneakyindexfix
