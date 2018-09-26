@@ -7,8 +7,9 @@
 * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
 * @author lisps
 */
-
 if (!defined('DOKU_INC')) die();
+if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+require_once (DOKU_PLUGIN . 'action.php');
 
 class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
     
@@ -28,7 +29,7 @@ class action_plugin_sneakyindexfix extends DokuWiki_Action_Plugin {
      * for this namespace to AUTH_READ
      * 
      */
-    function _acl_check(Doku_Event &$event) {
+    function _acl_check(Doku_Event $event) {
         if($event->result !== AUTH_NONE) return;
         $data = $event->data;
         
